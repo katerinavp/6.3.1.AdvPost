@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a1first_application.databinding.ActivityMainBinding
+import com.google.gson.Gson
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +25,9 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         adapter.submitList(list)
 
+       val turns = Gson().toJson(list)
+        println("сериализация" + turns)
+
     }
 
     private val list = listOf(
@@ -34,6 +38,7 @@ class MainActivity : AppCompatActivity() {
             Post(PostTypes.VIDEO,5,"2020-12-09 19:20:03", "Petrov", "Post5" ,null,null,null,"https://www.youtube.com/watch?v=WhWc3b3KhnY",null),
             Post(PostTypes.ADV, 6, "2020-12-09 19:20:03", "Petrov", "Post6", null, null,null,null,"https://netology.ru/") ,
     )
+
 
 
 }
