@@ -1,16 +1,30 @@
 package com.example.a1first_application
 
+import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a1first_application.databinding.ActivityMainBinding
-import com.google.gson.Gson
+import io.ktor.client.*
+import io.ktor.client.features.json.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlin.coroutines.EmptyCoroutineContext
 
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var job: CompletableJob // спосо
+    private lateinit var progressBar: ProgressBar
     private lateinit var adapterPost: AdapterPost
+    private val url = "https://raw.githubusercontent.com/katerinavp/GSON/master/posts.json"
+    lateinit var adapter: AdapterPost
 
     private val binding by lazy(LazyThreadSafetyMode.NONE) {
         ActivityMainBinding.inflate(LayoutInflater.from(this))
@@ -21,27 +35,56 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = AdapterPost()
+        adapter = AdapterPost()
         binding.recyclerView.adapter = adapter
-        adapter.submitList(list)
+        progressBar = binding.progressBar
 
-       val turns = Gson().toJson(list)
-        println("сериализация" + turns)
+        CoroutineScope(IO).launch {
+            progressBar.visibility = ProgressBar.VISIBLE
+            getResultFromGit()
+        }
 
     }
 
-    private val list = listOf(
-            Post(PostTypes.SIMPLE, 1, "2020-12-09 19:20:03", "Petrov", "Post1", null, null,null,null,null) ,
-            Post(PostTypes.SIMPLE, 2, "2020-09-09 10:20:03", "Ivanov", "Post2",null, null,null,null,null),
-            Post(PostTypes.EVENT, 3, "2020-09-09 10:20:03", "Ivanov", "Post3","Москва, ул. Ленинская Слобода", Pair(56.13003526647825 , 40.41206278961915),null,null,null),
-            Post(PostTypes.REPOST,4,"2020-12-09 19:20:03","Petrov",null,null,null ,"RepostText",null,null),
-            Post(PostTypes.VIDEO,5,"2020-12-09 19:20:03", "Petrov", "Post5" ,null,null,null,"https://www.youtube.com/watch?v=WhWc3b3KhnY",null),
-            Post(PostTypes.ADV, 6, "2020-12-09 19:20:03", "Petrov", "Post6", null, null,null,null,"https://netology.ru/") ,
-    )
+    private suspend fun getResultFromGit() {
+        delay(5000)
+        val client = HttpClient {
+            install(JsonFeature) {
+                // объясним чуть позже
+                acceptContentTypes = listOf(
+                        ContentType.Text.Plain,
+                        ContentType.Application.Json
+                )
+                serializer = GsonSerializer()
+            }
+        }
+        with(CoroutineScope(EmptyCoroutineContext))
+        {
+            launch {
+                // тестовый ответ будет десериализован в List<Post>
+                val response = client.get<List<Post>>(url)
+                println("Десериализация + ${response}")
+                client.close()
+                setResponseOnMainThread(response)
+            }
+        }
+    }
 
+    private suspend fun setResponseOnMainThread(response: List<Post>) {
+        withContext(Main) {
+            setResponse(response)
+            println("Главный поток + $response")
+            progressBar.visibility = ProgressBar.INVISIBLE
+        }
+    }
 
+    private fun setResponse(response: List<Post>) {
+        adapter.submitList(response)
+
+    }
 
 }
+
 
 
 
