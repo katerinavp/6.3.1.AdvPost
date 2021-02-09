@@ -15,7 +15,6 @@ import com.example.a1first_application.databinding.RecyclerviewItemBinding
 
 class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder =
             PostViewHolder(
                     RecyclerviewItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -176,7 +175,6 @@ class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
 
                 })
 
-
             }
         }
     }
@@ -185,7 +183,18 @@ class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
         override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
                 oldItem.id == newItem.id
 
+
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean = oldItem == newItem
     }
 
-}
+    override fun getItemViewType(position: Int): Int {
+        return if (position == 0) {    //for layout1
+            1
+        } else {
+            2 //for layout2
+        }
+    }
+
+
+    }
+
