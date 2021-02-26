@@ -18,13 +18,11 @@ class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder =
             PostViewHolder(
                     RecyclerviewItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-
             )
 
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         holder.bind(getItem(position))
-
     }
 
     class PostViewHolder(
@@ -64,7 +62,6 @@ class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
                 if (post.type == ADV) {
                     txtAdv.visibility = View.VISIBLE
                     txtAdv.text = post.adv
-
                 }
 
                 var countLike: Int = 0
@@ -187,14 +184,6 @@ class AdapterPost : ListAdapter<Post, AdapterPost.PostViewHolder>(PostDiffer) {
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean = oldItem == newItem
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {    //for layout1
-            1
-        } else {
-            2 //for layout2
-        }
-    }
 
-
-    }
+}
 
